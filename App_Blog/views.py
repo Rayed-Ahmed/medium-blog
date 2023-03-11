@@ -7,6 +7,7 @@ from django.utils.text import slugify
 import uuid
 
 from App_Blog.models import Blog, Comment, Likes
+from App_Blog.forms import CommentForm
 
 # Create your views here.
 
@@ -33,4 +34,29 @@ class CreateBlog(LoginRequiredMixin, CreateView):
 @login_required
 def blog_details(request, slug):
     blog = Blog.objects.get(slug=slug)
-    return render(request, 'App_Blog/blog_details.html', context={'blog': blog})
+    comment_form = CommentForm()
+
+    if request.method == 'POST':
+        comment_form = CommentForm(request.POST)
+
+        if comment_form.is_valid():
+            comment = comment_form.save(commit=False)
+            comment.user = request.user
+            comment.blog = blog
+            comment.save()
+            return HttpResponseRedirect(reverse('App_Blog:blog_details', kwargs={'slug':slug}))
+
+
+    return render(request, 'App_Blog/blog_details.html', context={'blog': blog, 'comment_form':comment_form})
+
+
+class MyBlogs(LoginRequiredMixin, TemplateView):
+    template_name = 'App_Blog/my_blogs.html'
+
+class UpdateBlog(LoginRequiredMixin, UpdateView):
+    model = Blog
+    fields = ('blog_title', 'blog_content', 'blog_image')
+    template_name = 'App_Blog/edit_blog.html'
+
+    def get_success_url(self, **kwargs):
+        return reverse_lazy('App_Blog:blog_details', kwargs={'slug': self.object.slug})

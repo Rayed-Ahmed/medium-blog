@@ -8,6 +8,7 @@ app_name = 'App_Blog'
 urlpatterns = [
     path('', views.BlogList.as_view(), name='blog_list'),
     path('write/', views.CreateBlog.as_view(), name='create_blog'),
-    path('details/<slug:slug>/', views.blog_details, name='blog_details')
-    #re_path(r'^details/(?P<slug>[\w’\-"]+)/$', views.blog_details, name='blog_details')
+    path('details/<slug>/', views.blog_details, name='blog_details'),
+    path('my-blogs/', views.MyBlogs.as_view(), name='my_blogs'),
+    path('edit/<pk>/', views.UpdateBlog.as_view(), name='edit_blog')
 ]
